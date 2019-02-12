@@ -38,11 +38,15 @@ app.get('/', async function (req, res) {
         let startDate = dateFormat(today.setDate(today.getDate() + j));
         let startMonth = dateFormat(startDate, "mmmm");
 
+        await page.click('#prices > c-wiz > div > div > div > div.Co7Mfe.EtchBc > div > div > div > div > div:nth-child(2) > div.p0RA.Py5Hke');
+
         let calendar = await page.$$('div.fSSWab.Io4vne');
-        let a = await calendar[0].getElementsByTagName('div');
-        for (let b of a) {
-            alert( input.value + ': ' + input.checked );
-        }
+        let a = calendar[0];
+        let b = await a.getAttribute('data-iso');
+        // let a = await calendar[0].getAttribute('data-iso');
+        // for (let b of a) {
+        //     alert( input.value + ': ' + input.checked );
+        // }
         console.log(a);
         pause()
 
