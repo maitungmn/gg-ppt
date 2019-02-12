@@ -1,0 +1,17 @@
+{
+  "name": "gg-ppt",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "maitungmn",
+  "license": "ISC",
+  "dependencies": {
+    "dateformat": "^3.0.3",
+    "express": "^4.16.4",
+    "puppeteer": "^1.12.2",
+    "readline-sync": "^1.4.9"
+  }
+}
