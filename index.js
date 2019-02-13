@@ -12,13 +12,11 @@ app.use(function(req, res, next) {
     next();
 });
 
-let url = "https://www.google.com/travel/hotels/%E6%96%B0%E6%A9%8B/place" +
-    "/11738745389659249143/prices?ap=MAFiFDEyNDA3NTkzNTQ2NDU4NDY5Nzc0&g2lb=" +
-    "4208993%2C4223281%2C4220469%2C4226113%2C4231195&hl=en&gl=jp&un=0&q=%E6%96%B0" +
-    "%E6%A9%8B%20%E3%83%9B%E3%83%86%E3%83%AB&rp=OAFAAEgC&ictx=1&ved=0CKwBEKjgAigHahcKEw" +
-    "jA1dDS86vgAhUAAAAAHQAAAAAQAQ&hrf=CgYI6IQBEAAiA0pQWSoWCgcI4w8QAhgbEgcI4w8QAhgcGAEgAbABAJ" +
-    "oBBxIFVG9reW-iAREKCC9tLzA3ZGZrEgVUb2t5b5IBAiAB&tcfs=EisKCC9tLzA3ZGZrEgVUb2t5bxoYCgoyMDE5LTAyL" +
-    "TI3EgoyMDE5LTAyLTI4IhgKCjIwMTktMDItMjcSCjIwMTktMDItMjhSAA";
+let url = "https://www.google.com/travel/hotels/%E6%96" +
+    "%B0%E6%A9%8B/place/11738745389659249143/prices?hl=en&" +
+    "gl=jp&un=0&q=%E6%96%B0%E6%A9%8B%20%E3%83%9B%E3%83%86%E3%" +
+    "83%AB&tcfs=EhoaGAoKMjAxOS0wMi0xMxIKMjAxOS0wMi0xNCIYCgoyMDE5" +
+    "LTAyLTEzEgoyMDE5LTAyLTE0UgA&hrf=KhYKBwjjDxACGA0SBwjjDxACGA4YASAB";
 
 // respond with "hello world" when a GET request is made to the homepage
 app.get('/', async function (req, res) {
@@ -30,29 +28,28 @@ app.get('/', async function (req, res) {
     const override = Object.assign(page.viewport(), {width: 1000});
     await page.setViewport(override);
     await page.goto(url);
-    let priceEles = await page.$$('div.Go1LUe');
     let resultArr = [];
-    let today = new Date();
+    const today = new Date();
 
     for (let j = 0; j < 180; j++) {
-        let startDate = dateFormat(today.setDate(today.getDate() + j));
-        let startMonth = dateFormat(startDate, "mmmm");
+        // let startDate = dateFormat(today, "yyyy-mm-dd");
+        // let endDate = dateFormat(today.setDate(today.getDate() + 1), "yyyy-mm-dd");
+        // console.log(startDate + "|||" + endDate);
+        //
+        // await page.click('#prices > c-wiz > div > div > div > div.Co7Mfe.EtchBc > div > div > div > div > div:nth-child(2) > div.p0RA.Py5Hke');
+        //
+        // await page.click(`div.fSSWab.Io4vne[data-iso="${startDate}"]`);
+        // console.log(1);
+        // await page.click(`div.fSSWab.Io4vne[data-iso="${endDate}"]`);
+        // console.log(2);
+        // await page.click('button.VfPpkd-LgbsSe.ksBjEc.Tq8g8b');
+        // console.log(3);
+        // await page.waitFor(3000);
+        // console.log(4);
 
-        await page.click('#prices > c-wiz > div > div > div > div.Co7Mfe.EtchBc > div > div > div > div > div:nth-child(2) > div.p0RA.Py5Hke');
-
-        let calendar = await page.$$('div.fSSWab.Io4vne');
-        let a = calendar[0];
-        let b = await a.getAttribute('data-iso');
-        // let a = await calendar[0].getAttribute('data-iso');
-        // for (let b of a) {
-        //     alert( input.value + ': ' + input.checked );
-        // }
-        console.log(a);
-        pause()
-
-        await page.click('span > span.DPvwYc.sm8sCf.Jrg3cf');
-        await page.waitFor(1500);
-        let arr = [dateFormat(today.setDate(today.getDate() + 1), "isoDate")];
+        let arr = [dateFormat(today, "yyyy-mm-dd")];
+        today.setDate(today.getDate() + 1);
+        let priceEles = await page.$$('div.Go1LUe');
         for (let i = 0; i < priceEles.length; i++) {
             let channelSel = await priceEles[i].$(' div > div.nfhVYd');
             let channel = await channelSel.getProperty('innerHTML');
@@ -67,9 +64,14 @@ app.get('/', async function (req, res) {
                 price: finalPrice
             })
         }
-        resultArr.push(arr)
+        resultArr.push(arr);
+        console.log(resultArr);
+        let nextButton = await page.$('#prices > c-wiz > div > div > div > div.Co7Mfe.EtchBc > div > div > div > div > div:nth-child(2) > div.U26fgb.mUbCce.fKz7Od.C6BbGb.GwzyAc.cU51ne')
+        // await page.click('#prices > c-wiz > div > div > div > div > div > div > div > div > div:nth-child(2) > div')
+        await nextButton.click();
+        if(j === 10) pause();
+        await page.waitFor(2000)
     }
-
 
     console.log(resultArr);
     await page.close()
