@@ -6,7 +6,7 @@ const dateFormat = require('dateformat');
 process.setMaxListeners(Infinity);
 
 let app = express();
-app.use(function(req, res, next) {
+app.use(function (req, res, next) {
     res.header("Access-Control-Allow-Origin", "*");
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
     next();
@@ -32,45 +32,65 @@ app.get('/', async function (req, res) {
     const today = new Date();
 
     for (let j = 0; j < 180; j++) {
-        // let startDate = dateFormat(today, "yyyy-mm-dd");
-        // let endDate = dateFormat(today.setDate(today.getDate() + 1), "yyyy-mm-dd");
-        // console.log(startDate + "|||" + endDate);
-        //
-        // await page.click('#prices > c-wiz > div > div > div > div.Co7Mfe.EtchBc > div > div > div > div > div:nth-child(2) > div.p0RA.Py5Hke');
-        //
-        // await page.click(`div.fSSWab.Io4vne[data-iso="${startDate}"]`);
-        // console.log(1);
-        // await page.click(`div.fSSWab.Io4vne[data-iso="${endDate}"]`);
-        // console.log(2);
-        // await page.click('button.VfPpkd-LgbsSe.ksBjEc.Tq8g8b');
-        // console.log(3);
-        // await page.waitFor(3000);
-        // console.log(4);
+        /**
+         * Click to Calendar
+         */
+        let startDate = dateFormat(today, "yyyy-mm-dd");
+        let endDate = dateFormat(today.setDate(today.getDate() + 1), "yyyy-mm-dd");
+        console.log(startDate + "|||" + endDate);
 
-        let arr = [dateFormat(today, "yyyy-mm-dd")];
-        today.setDate(today.getDate() + 1);
+        await page.click('#prices > c-wiz > div > div > div > div.Co7Mfe.EtchBc' +
+            ' > div > div > div > div > div:nth-child(2)');
+
+        if (j === 0) {
+            await page.click(`div.fSSWab.Io4vne[data-iso="${startDate}"]`);
+            console.log(1);
+            await page.click(`div.fSSWab.Io4vne[data-iso="${endDate}"]`);
+            console.log(2);
+            await page.click('button.VfPpkd-LgbsSe.ksBjEc.Tq8g8b');
+            console.log(3);
+            await page.waitFor(2200);
+            console.log(4);
+        } else {
+            dateFormat(today.setDate(today.getDate() + 1), "yyyy-mm-dd");
+            await page.click('#prices > c-wiz > div > div > div > div.Co7Mfe.EtchBc > div > div > div > div > ' +
+                'div:nth-child(2) > div.U26fgb.mUbCce.fKz7Od.C6BbGb.GwzyAc.cU51ne');
+            await page.click('button.VfPpkd-LgbsSe.ksBjEc.Tq8g8b');
+            await page.waitFor(2200);
+        }
+
+
+        let arr = [startDate];
+        // today.setDate(today.getDate() + 1);
+
+        /**
+         * Get Price List
+         */
         let priceEles = await page.$$('div.Go1LUe');
-        for (let i = 0; i < priceEles.length; i++) {
-            let channelSel = await priceEles[i].$(' div > div.nfhVYd');
-            let channel = await channelSel.getProperty('innerHTML');
-            let channelName = await channel.jsonValue();
+        if (priceEles) {
+            for (let i = 0; i < priceEles.length; i++) {
+                let channelSel = await priceEles[i].$(' div > div.nfhVYd');
+                let channel = await channelSel.getProperty('innerHTML');
+                let channelName = await channel.jsonValue();
 
-            let priceSel = await priceEles[i].$('div > span.ZTbtcd > span');
-            let price = await priceSel.getProperty('innerHTML');
-            let finalPrice = await price.jsonValue();
+                let priceSel = await priceEles[i].$('div > span.ZTbtcd > span');
+                let price = await priceSel.getProperty('innerHTML');
+                let finalPrice = await price.jsonValue();
 
-            arr.push({
-                channel: channelName,
-                price: finalPrice
-            })
+                arr.push({
+                    channel: channelName,
+                    price: finalPrice
+                })
+            }
         }
         resultArr.push(arr);
-        console.log(resultArr);
-        let nextButton = await page.$('#prices > c-wiz > div > div > div > div.Co7Mfe.EtchBc > div > div > div > div > div:nth-child(2) > div.U26fgb.mUbCce.fKz7Od.C6BbGb.GwzyAc.cU51ne')
-        // await page.click('#prices > c-wiz > div > div > div > div > div > div > div > div > div:nth-child(2) > div')
-        await nextButton.click();
-        if(j === 10) pause();
-        await page.waitFor(2000)
+        console.log(arr);
+
+        // await page.click('#prices > c-wiz > div > div > div > div.Co7Mfe.EtchBc > div > div > div > div > ' +
+        //     'div:nth-child(2) > div.U26fgb.mUbCce.fKz7Od.C6BbGb.GwzyAc.cU51ne');
+        // pause()
+        if (j > 10) pause();
+        // await page.waitFor(2200)
     }
 
     console.log(resultArr);
